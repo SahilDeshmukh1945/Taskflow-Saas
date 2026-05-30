@@ -13,8 +13,7 @@ export function CreateTaskModal({ isOpen, onClose, onSubmit }) {
     status: 'todo',
     assignedTo: '',
   })
-
-  const members = activeWorkspace?.members || []
+const members = (activeWorkspace?.members || []).filter(m => m.user && (m.user._id || typeof m.user === 'string'))
 
   const handleSubmit = async (e) => {
     e.preventDefault()

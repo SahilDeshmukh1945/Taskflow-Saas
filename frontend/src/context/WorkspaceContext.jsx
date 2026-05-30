@@ -22,19 +22,18 @@ export function WorkspaceProvider({ children }) {
   }, [activeWorkspace])
 
   const fetchWorkspaces = async () => {
-    setLoading(true)
-    try {
-      const { data } = await api.get('/workspace')
-      // backend returns { workspaces: [...] }
-      const list = data.workspaces || []
-      setWorkspaces(list)
-      if (list.length > 0) setActiveWorkspace(list[0])
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setLoading(false)
-    }
+  setLoading(true)
+  try {
+    const { data } = await api.get('/workspace')
+    const list = data.workspaces || data || []
+    setWorkspaces(list)
+    if (list.length > 0) setActiveWorkspace(list[0])
+  } catch (e) {
+    console.error(e)
+  } finally {
+    setLoading(false)
   }
+}
 
   const createWorkspace = async (name) => {
     const { data } = await api.post('/workspace/create', { name })
