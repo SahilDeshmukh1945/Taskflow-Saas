@@ -21,11 +21,11 @@ export function CreateTaskModal({ isOpen, onClose, onSubmit }) {
     if (!form.title.trim()) return
     setLoading(true)
     try {
-      await onSubmit({
-        title: form.title,
-        status: form.status,
-        assignedTo: form.assignedTo || undefined,
-      })
+     await onSubmit({
+  title: form.title,
+  status: form.status,
+  assignedTo: form.assignedTo || undefined,
+})
       toast({ message: 'Task created!', type: 'success' })
       onClose()
       setForm({ title: '', status: 'todo', assignedTo: '' })
@@ -67,11 +67,16 @@ export function CreateTaskModal({ isOpen, onClose, onSubmit }) {
             onChange={e => setForm(p => ({ ...p, assignedTo: e.target.value }))}
           >
             <option value="">Unassigned</option>
-            {members.map(m => (
-              <option key={m.user?._id || m.user} value={m.user?._id || m.user}>
-                {m.user?.name || m.user?.email || 'Member'}
-              </option>
-            ))}
+  {members.map(m => {
+    const userId = m.user?._id || m.user
+    const userName = m.user?.name || m.user?.email || 'Member'
+    if (!userId) return null
+    return (
+      <option key={userId} value={userId}>
+        {userName}
+      </option>
+    )
+  })}
           </select>
         </div>
 
