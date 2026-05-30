@@ -12,7 +12,10 @@ connectDB();
 const app = express();
 //middlewares
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: 'https://taskflow-saas-snowy.vercel.app',
+  credentials: true
+}))
 
 //test route
 app.get("/",(req,res)=>{
