@@ -1,3 +1,4 @@
+const User = require("../models/user");
 const Workspace = require("../models/workspace");
 const asyncHandler = require("express-async-handler");
 

@@ -117,68 +117,60 @@ const getTasks = asyncHandler(async (req, res) => {
 // UPDATE TASK
 // =========================
 const updateTask = asyncHandler(async (req, res) => {
-  const { taskId } = req.params;
-  const { title, status, assignedTo } = req.body;
+  const { taskId } = req.params
+  const { title, status, assignedTo } = req.body
 
-  // 1️⃣ Find task
-  const task = await Task.findById(taskId);
-
+  const task = await Task.findById(taskId)
   if (!task) {
-    res.status(404);
-    throw new Error("Task not found");
+    res.status(404)
+    throw new Error("Task not found")
   }
 
-  // 2️⃣ Get project
-  const project = await Project.findById(task.project);
+  const project = await Project.findById(task.project)
+  const workspace = await Workspace.findById(project.workspace)
 
-  // 3️⃣ Get workspace
-  const workspace = await Workspace.findById(project.workspace);
-
-  // 4️⃣ Check membership
   const member = workspace.members.find(
-    (m) => m.user.toString() === req.user.toString()
-  );
+    (m) => {
+      const memberId = m.user._id ? m.user._id.toString() : m.user.toString()
+      return memberId === req.user.toString()
+    }
+  )
 
   if (!member) {
-    res.status(403);
-    throw new Error("Not authorized");
+    res.status(403)
+    throw new Error("Not authorized")
   }
 
-  // 5️⃣ Only assigned user OR owner/admin can update
-  const isAssignedUser =
-    task.assignedTo &&
-    task.assignedTo.toString() === req.user.toString();
+  const isAssignedUser = task.assignedTo &&
+    task.assignedTo.toString() === req.user.toString()
 
-  const isAdminOrOwner =
-    member.role === "owner" || member.role === "admin";
+  const isAdminOrOwner = member.role === "owner" || member.role === "admin"
 
   if (!isAssignedUser && !isAdminOrOwner) {
-    res.status(403);
-    throw new Error("Only assigned user or admin/owner can update task");
+    res.status(403)
+    throw new Error("Only assigned user or admin/owner can update task")
   }
 
-  // 6️⃣ Validate assigned user
   if (assignedTo) {
     const isAssignedMember = workspace.members.find(
-      (m) => m.user.toString() === assignedTo.toString()
-    );
-
+      (m) => {
+        const memberId = m.user._id ? m.user._id.toString() : m.user.toString()
+        return memberId === assignedTo.toString()
+      }
+    )
     if (!isAssignedMember) {
-      res.status(400);
-      throw new Error("Assigned user is not part of workspace");
+      res.status(400)
+      throw new Error("Assigned user is not part of workspace")
     }
-
-    task.assignedTo = assignedTo;
+    task.assignedTo = assignedTo
   }
 
-  // 7️⃣ Update fields
-  if (title) task.title = title;
-  if (status) task.status = status;
+  if (title) task.title = title
+  if (status) task.status = status
 
-  await task.save();
-
-  res.json(task);
-});
+  await task.save()
+  res.json(task)
+})
 
 // =========================
 // DELETE TASK
