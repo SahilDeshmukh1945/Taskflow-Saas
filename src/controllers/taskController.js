@@ -26,9 +26,12 @@ const createTask = asyncHandler(async (req, res) => {
   }
 
   // 3️⃣ Check user is member
-  const member = workspace.members.find(
-    (m) => m.user.toString() === req.user.toString()
-  );
+const member = workspace.members.find(
+  (m) => {
+    const memberId = m.user._id ? m.user._id.toString() : m.user.toString()
+    return memberId === req.user.toString()
+  }
+)
 
   if (!member) {
     res.status(403);
@@ -81,9 +84,12 @@ const getTasks = asyncHandler(async (req, res) => {
   }
 
   // 3️⃣ Check membership
-  const member = workspace.members.find(
-    (m) => m.user.toString() === req.user.toString()
-  );
+const member = workspace.members.find(
+  (m) => {
+    const memberId = m.user._id ? m.user._id.toString() : m.user.toString()
+    return memberId === req.user.toString()
+  }
+)
 
   if (!member) {
     res.status(403);
@@ -193,9 +199,12 @@ const deleteTask = asyncHandler(async (req, res) => {
   const workspace = await Workspace.findById(project.workspace);
 
   // 4️⃣ Check membership
-  const member = workspace.members.find(
-    (m) => m.user.toString() === req.user.toString()
-  );
+ const member = workspace.members.find(
+  (m) => {
+    const memberId = m.user._id ? m.user._id.toString() : m.user.toString()
+    return memberId === req.user.toString()
+  }
+)
 
   if (!member) {
     res.status(403);
