@@ -91,10 +91,11 @@ const addMember = asyncHandler(async (req, res) => {
   })
 
   await workspace.save()
-
+  const updatedWorkspace = await Workspace.findById(workspace._id)
+  .populate("members.user", "name email")
   res.status(200).json({
     message: "Member added successfully",
-    workspace,
+    workspace: updatedWorkspace,
   })
 })
 
