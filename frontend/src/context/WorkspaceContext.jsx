@@ -17,23 +17,23 @@ export function WorkspaceProvider({ children }) {
   }, [user])
 
   useEffect(() => {
-    if (activeWorkspace) fetchProjects(activeWorkspace._id)
+    if (activeWorkspace?._id) fetchProjects(activeWorkspace._id)
     else setProjects([])
-  }, [activeWorkspace])
+  }, [activeWorkspace?._id])
 
   const fetchWorkspaces = async () => {
-  setLoading(true)
-  try {
-    const { data } = await api.get('/workspace')
-    const list = data.workspaces || data || []
-    setWorkspaces(list)
-    if (list.length > 0) setActiveWorkspace(list[0])
-  } catch (e) {
-    console.error(e)
-  } finally {
-    setLoading(false)
+    setLoading(true)
+    try {
+      const { data } = await api.get('/workspace')
+      const list = data.workspaces || []
+      setWorkspaces(list)
+      if (list.length > 0) setActiveWorkspace(list[0])
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setLoading(false)
+    }
   }
-}
 
   const createWorkspace = async (name) => {
     const { data } = await api.post('/workspace/create', { name })
@@ -63,31 +63,33 @@ export function WorkspaceProvider({ children }) {
     setActiveProject(data)
     return data
   }
-  const deleteProject = async (projectId) => {
-  await api.delete(`/project/${projectId}`)
-  setProjects(prev => prev.filter(p => p._id !== projectId))
-  if (activeProject?._id === projectId) setActiveProject(null)
-}
-const addMember = async (email, role) => {
-  const { data } = await api.post('/workspace/add-member', {
-    workspaceId: activeWorkspace._id,
-    email,
-    role,
-  })
-  await fetchWorkspaces()
-  return data
-}
 
-return (
-  <WorkspaceContext.Provider value={{
-    workspaces, activeWorkspace, setActiveWorkspace,
-    projects, activeProject, setActiveProject,
-    loading, fetchWorkspaces, createWorkspace,
-    createProject, deleteProject, addMember,
-  }}>
-    {children}
-  </WorkspaceContext.Provider>
-)
+  const deleteProject = async (projectId) => {
+    await api.delete(`/project/${projectId}`)
+    setProjects(prev => prev.filter(p => p._id !== projectId))
+    if (activeProject?._id === projectId) setActiveProject(null)
+  }
+
+  const addMember = async (email, role) => {
+    const { data } = await api.post('/workspace/add-member', {
+      workspaceId: activeWorkspace._id,
+      email,
+      role,
+    })
+    await fetchWorkspaces()
+    return data
+  }
+
+  return (
+    <WorkspaceContext.Provider value={{
+      workspaces, activeWorkspace, setActiveWorkspace,
+      projects, activeProject, setActiveProject,
+      loading, fetchWorkspaces, createWorkspace,
+      createProject, deleteProject, addMember,
+    }}>
+      {children}
+    </WorkspaceContext.Provider>
+  )
 }
 
 export const useWorkspace = () => {
